@@ -133,7 +133,7 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
       - name: Install app-engine-go
-        run: sudo apt-get install google-cloud-sdk-app-engine-go
+        run: sudo gcloud components install app-engine-go
       - name: Deploy App
         id: deploy
         uses: google-github-actions/deploy-appengine@v2
