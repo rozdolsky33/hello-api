@@ -23,6 +23,6 @@ func Translate(word string, language string) string {
 }
 
 func sanitizeInput(word string) string {
-	word = strings.ToLower(word)
+	word = strings.ToLower(word) //hello
 	return strings.TrimSpace(word)
 }
