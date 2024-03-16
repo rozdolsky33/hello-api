@@ -1,8 +1,8 @@
 GO_VERSION := 1.21  # <1>
 
-.PHONY: install-go init-go
-
-setup: install-go init-go # <2>
+setup: # <2>
+	install-go
+	init-go
 
 install-go: # <3>
 	wget "https://golang.org/dl/go$(GO_VERSION).linux-amd64.tar.gz"
@@ -31,3 +31,9 @@ coverage:
 
 report:
 	go tool cover -html=coverage.out -o cover.html
+
+check-format:
+	test -z $$(go fmt ./...)
+
+install-lint:
+	sudo curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.56.2
