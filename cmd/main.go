@@ -3,6 +3,7 @@ package main
 import (
 	"hello-api/handlers"
 	"hello-api/handlers/rest"
+	"hello-api/translation"
 	"log"
 	"net/http"
 )
@@ -13,15 +14,12 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/hello", rest.TranslateHandler)
-	mux.HandleFunc("/health", handlers.HealthCheck)
+	translationService := translation.NewStaticService()
+	translateHandler := rest.NewTranslateHandler(translationService)
+	mux.HandleFunc("/translate/hello", translateHandler.TranslateHandler)
+	mux.HandleFunc("/health", handlers.HealthCheck) // <1>
 
 	log.Printf("listening on %s\n", addr)
 
 	log.Fatal(http.ListenAndServe(addr, mux))
-}
-
-type Resp struct { // <6>
-	Language    string `json:"language"`
-	Translation string `json:"translation"`
 }

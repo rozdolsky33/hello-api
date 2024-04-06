@@ -1,10 +1,20 @@
 package translation
 
-import "strings"
+import (
+	"strings"
+)
 
-func Translate(word string, language string) string {
-	word = sanitizeInput(word)
-	language = sanitizeInput(language)
+// StaticService has data that does not change.
+type StaticService struct{}
+
+// NewStaticService creates new instance of a service that uses static data.
+func NewStaticService() *StaticService {
+	return &StaticService{}
+}
+
+func (s *StaticService) Translate(word string, language string) string {
+	word = sanitizeInput(word)         // <1>
+	language = sanitizeInput(language) // <2>
 
 	if word != "hello" {
 		return ""
@@ -17,12 +27,14 @@ func Translate(word string, language string) string {
 		return "hei"
 	case "german":
 		return "hallo"
+	case "french": // <1>
+		return "bonjour"
 	default:
 		return ""
 	}
 }
 
-func sanitizeInput(word string) string {
-	word = strings.ToLower(word) //hello
-	return strings.TrimSpace(word)
+func sanitizeInput(w string) string { // <3>
+	w = strings.ToLower(w)
+	return strings.TrimSpace(w)
 }

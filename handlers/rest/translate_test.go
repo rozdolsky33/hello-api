@@ -8,6 +8,15 @@ import (
 	"testing"
 )
 
+type stubbedService struct{}
+
+func (s *stubbedService) Translate(word string, language string) string {
+	if word == "foo" {
+		return "bar"
+	}
+	return ""
+}
+
 func TestTranslateAPI(t *testing.T) {
 	tt := []struct { // <1>
 		Endpoint            string
@@ -16,26 +25,33 @@ func TestTranslateAPI(t *testing.T) {
 		ExpectedTranslation string
 	}{
 		{
-			Endpoint:            "/hello",
+			Endpoint:            "/foo",
 			StatusCode:          200,
 			ExpectedLanguage:    "english",
-			ExpectedTranslation: "hello",
+			ExpectedTranslation: "bar",
 		},
 		{
-			Endpoint:            "/hello?language=german",
+			Endpoint:            "/foo?language=german",
 			StatusCode:          200,
 			ExpectedLanguage:    "german",
-			ExpectedTranslation: "hallo",
+			ExpectedTranslation: "bar",
 		},
 		{
-			Endpoint:            "/hello?language=dutch",
-			StatusCode:          http.StatusNotFound,
+			Endpoint:            "/baz",
+			StatusCode:          404,
 			ExpectedLanguage:    "",
 			ExpectedTranslation: "",
 		},
+		{
+			Endpoint:            "/foo?language=GerMan",
+			StatusCode:          200,
+			ExpectedLanguage:    "german",
+			ExpectedTranslation: "bar",
+		},
 	}
 
-	handler := http.HandlerFunc(rest.TranslateHandler)
+	h := rest.NewTranslateHandler(&stubbedService{})
+	handler := http.HandlerFunc(h.TranslateHandler)
 
 	for _, test := range tt { // <3>
 		rr := httptest.NewRecorder()
@@ -49,7 +65,7 @@ func TestTranslateAPI(t *testing.T) {
 		}
 
 		var resp rest.Resp
-		json.Unmarshal(rr.Body.Bytes(), &resp)
+		_ = json.Unmarshal(rr.Body.Bytes(), &resp)
 
 		if resp.Language != test.ExpectedLanguage {
 			t.Errorf(`expected language "%s" but received %s`,
